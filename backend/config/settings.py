@@ -44,7 +44,7 @@ INSTALLED_APPS = [
 
     # Local Apps
     "accounts",
-    # "learning",
+    "learning",
     # "community",
     # "news",
     # "assistant",
