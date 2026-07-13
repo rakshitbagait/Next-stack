@@ -48,7 +48,7 @@ INSTALLED_APPS = [
     "community",
     # "news",
     # "assistant",
-    # "analytics",  # Rename to dashboard later if you want
+    # "analytics",
 ]
 
 # -----------------------------------------------------------------------------
