@@ -45,7 +45,7 @@ INSTALLED_APPS = [
     # Local Apps
     "accounts",
     "learning",
-    # "community",
+    "community",
     # "news",
     # "assistant",
     # "analytics",  # Rename to dashboard later if you want
