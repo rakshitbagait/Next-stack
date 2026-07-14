@@ -64,31 +64,6 @@ class Resource(models.Model):
     def __str__(self):
      return self.title
 
-class LearningPath(models.Model):
-    class Status(models.TextChoices):
-        ACTIVE = "active"
-        COMPLETED  = "completed"
-        PAUSED = "paused"
-    id = models.UUIDField(primary_key=True,default=uuid.uuid4,editable=False)
-    user  = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE)
-    goal = models.CharField(max_length=250)
-    status = models.CharField(max_length=50,choices=Status.choices,default=Status.ACTIVE)
-    created_at = models.DateTimeField( auto_now_add = True)
-    updated_at = models.DateTimeField(auto_now=True)
-    def __str__(self):
-        return f"{self.user.username} - {self.goal}"
-class LearningPathNode(models.Model):
-    id = models.UUIDField(primary_key=True,default=uuid.uuid4,editable=False)
-    learning_path= models.ForeignKey(LearningPath,on_delete=models.CASCADE)
-    knowledge_node = models.ForeignKey(KnowledgeNode,on_delete=models.CASCADE)
-    order_no = models.IntegerField()
-    recommendation_reason = models.TextField(max_length=300,blank =True)
-    created_at = models.DateTimeField(auto_now_add = True)
-    class Meta:
-        ordering = ["order_no"]
-    def __str__(self):
-        return f"{self.learning_path.goal} - {self.knowledge_node.title}"
-
 class UserProgress(models.Model):
     class Status(models.TextChoices):
         NOT_STARTED = "Not Started"
@@ -110,3 +85,90 @@ class UserNote(models.Model):
     created_at = models.DateTimeField(auto_now_add = True)
     updated_at = models.DateTimeField(auto_now=True)
 
+class Practice(models.Model):
+    class Platform(models.TextChoices):
+        LEETCODE = "leetcode"
+        HACKERRANK = "hackerrank"
+        CODEFORCES = "codeforces"
+        GEEKSFORGEEKS = "geeksforgeeks"
+        OTHER = "other"
+
+    class Difficulty(models.TextChoices):
+        EASY = "easy"
+        MEDIUM = "medium"
+        HARD = "hard"
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
+    knowledge_node = models.ForeignKey(
+        KnowledgeNode,
+        on_delete=models.CASCADE
+    )
+
+    title = models.CharField(max_length=250)
+
+    platform = models.CharField(
+        max_length=30,
+        choices=Platform.choices
+    )
+
+    difficulty = models.CharField(
+        max_length=20,
+        choices=Difficulty.choices
+    )
+
+    url = models.URLField()
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+class LearningPathTemplate(models.Model):
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
+    title = models.CharField(max_length=200)
+
+    description = models.TextField(blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    updated_at = models.DateTimeField(auto_now=True)
+class LearningPathTemplateNode(models.Model):
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
+    template = models.ForeignKey(
+        LearningPathTemplate,
+        on_delete=models.CASCADE
+    )
+
+    knowledge_node = models.ForeignKey(
+        KnowledgeNode,
+        on_delete=models.CASCADE
+    )
+
+    order_no = models.PositiveIntegerField()
+
+class LearningPath(models.Model):
+    class Status(models.TextChoices):
+        ACTIVE = "active"
+        COMPLETED  = "completed"
+        PAUSED = "paused"
+    id = models.UUIDField(primary_key=True,default=uuid.uuid4,editable=False)
+    user  = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE)
+    template = models.ForeignKey(LearningPathTemplate,on_delete=models.SET_NULL,null=True,blank=True)
+    status = models.CharField(max_length=50,choices=Status.choices,default=Status.ACTIVE)
+    created_at = models.DateTimeField( auto_now_add = True)
+    updated_at = models.DateTimeField(auto_now=True)
+    def __str__(self):
+        return f"{self.user.username} - {self.goal}"
+class LearningPathNode(models.Model):
+    id = models.UUIDField(primary_key=True,default=uuid.uuid4,editable=False)
+    learning_path= models.ForeignKey(LearningPath,on_delete=models.CASCADE)
+    knowledge_node = models.ForeignKey(KnowledgeNode,on_delete=models.CASCADE)
+    order_no = models.IntegerField()
+    recommendation_reason = models.TextField(max_length=300,blank =True)
+    created_at = models.DateTimeField(auto_now_add = True)
+    class Meta:
+        ordering = ["order_no"]
+    def __str__(self):
+        return f"{self.learning_path.goal} - {self.knowledge_node.title}"

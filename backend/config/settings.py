@@ -46,7 +46,7 @@ INSTALLED_APPS = [
     "accounts",
     "learning",
     "community",
-    # "news",
+    "news",
     # "assistant",
     # "analytics",
 ]
