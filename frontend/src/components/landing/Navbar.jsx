@@ -7,7 +7,7 @@ import Logo from "../../components/common/Logo";
 import moon from "../../assets/moon.svg";
 import ThemeButton from "../common/ThemeButton";
 
-
+import Features from "../landing/Features"
 import {
     FaBars,
     FaTimes,
@@ -36,9 +36,9 @@ const Navbar = () => {
 
                 <div className="navbar-center">
                     <a href="#features">Features</a>
-                    <a href="#about">About</a>
+                    <a href="#faq">FAQ</a>
                     <a href="#community">Community</a>
-                    <a href="#Trending  ">Trending Tech</a>
+                    <a href="#trending  ">Trending Tech</a>
                     <a href="#news">News</a>
                 </div>
 

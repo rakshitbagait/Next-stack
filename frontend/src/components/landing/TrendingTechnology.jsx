@@ -56,7 +56,7 @@ const technologies = [
 
 const TrendingTechnology = () => {
   return (
-    <section className="trending">
+    <section className="trending" id="trending">
 
       <div className="trending-header">
         <h2>Trending Technologies</h2>

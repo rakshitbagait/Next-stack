@@ -15,7 +15,7 @@ import "../../styles/landing.css";
 
 const Features = () => {
     return (
-        <section className="features">
+        <section className="features" id="features">
 
             <h2>Powerful Features</h2>
 

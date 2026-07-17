@@ -4,6 +4,8 @@ import "../../styles/landing.css";
 import mascot from "../../assets/mascot-robo.png";
 import mascotHead from "../../assets/mascotHead.png"
 
+import { Link } from "react-router-dom";
+
 
 import {
     FaComments,
@@ -288,13 +290,12 @@ const CommunityAssistant = () => {
                         type="text"
                         placeholder="Ask anything..."
                     />
-
-                    <button>
+                <Link to ="/login">
+                    <button className="send-btn">
 
                         <FaPaperPlane />
-
                     </button>
-
+                </Link>
                 </div>
 
             </div>

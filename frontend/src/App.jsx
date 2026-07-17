@@ -1,11 +1,12 @@
-import { useState } from 'react'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import Landing from "./pages/landing/landing"
+  import { useState } from 'react'
+  import viteLogo from './assets/vite.svg'
+  import heroImg from './assets/hero.png'
+  import Landing from "./pages/landing/landing"
+import AppRoutes from "./routes/AppRoutes";
+
 function App() {
-  return<Landing />
+    return <AppRoutes />;
 }
 
 export default App;
-
 

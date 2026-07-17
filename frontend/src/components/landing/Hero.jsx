@@ -1,6 +1,7 @@
 import React from "react";
 import "../../styles/landing.css"
 import mascot from "../../assets/mascot.png"
+import { Link } from "react-router-dom";
 
 const Hero = () => 
 {
@@ -15,9 +16,11 @@ const Hero = () =>
                  experience, and schedule. <br />Learn the right technologies in the right order using trusted resources, 
                  industry best practices, and real-world learning paths—all without information overload.
             </p>
+            <Link to="/register">
             <button className="Hero-btn">
                 Get Started
             </button>
+            </Link>
             </div>
             <div className="lang-card-mascot">
 <div className="lang-section">

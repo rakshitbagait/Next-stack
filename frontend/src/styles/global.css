@@ -36,7 +36,8 @@ body{
 
 .logo-image{
     width: auto;
-    height: 100px;
+    height: 150px;
+    margin-top: 10px;
     object-fit: contain;
 }
 
@@ -50,7 +51,7 @@ body{
     font-weight: bolder;
 }
 .logo-text span{
-        color: #2563EB;
+    color: #2563EB;
     letter-spacing: -0.5px;
     user-select: none;
 }

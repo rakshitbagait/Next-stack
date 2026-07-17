@@ -1,5 +1,6 @@
 import React from "react";
 import "../../styles/landing.css";
+import { Link } from "react-router-dom";
 
 import {
   FaPython,
@@ -88,11 +89,11 @@ const Roadmap = () => {
           your goals, current experience and available time.
           Learn one concept at a time without feeling overwhelmed.
         </p>
-
+      <Link to="/login">
         <button className="roadmap-btn">
           Try Roadmap Builder →
         </button>
-
+      </Link>
       </div>
 
       {/* Right Side */}
