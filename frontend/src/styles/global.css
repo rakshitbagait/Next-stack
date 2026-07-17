@@ -1,0 +1,57 @@
+
+:root{
+
+    --background:#FFFFFF;
+    --text:#111827;
+    --surface:#F8FAFC;
+    --primary:#2563EB;
+
+}
+
+[data-theme="dark"]{
+
+    --background:#0F172A;
+    --text:#F8FAFC;
+    --surface:#1E293B;
+    --primary:#3B82F6;
+
+}
+
+body{
+
+    background:var(--background);
+    color:var(--text);
+
+    transition:.3s ease;
+}
+.logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0px;
+
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.logo-image{
+    width: auto;
+    height: 100px;
+    object-fit: contain;
+}
+
+.logo-text {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    color: black;
+    font-size: large;
+    font-weight: bolder;
+}
+.logo-text span{
+        color: #2563EB;
+    letter-spacing: -0.5px;
+    user-select: none;
+}
+

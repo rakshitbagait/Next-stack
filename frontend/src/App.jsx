@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
+import Landing from "./pages/landing/landing"
 function App() {
-  return <h1>StackMaps.sh</h1>;
+  return<Landing />
 }
 
 export default App;
