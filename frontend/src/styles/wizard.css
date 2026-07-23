@@ -1,0 +1,950 @@
+/* ==================================================================
+   StackMaps · Onboarding Wizard
+   wizard.css
+   ================================================================== */
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+
+/* ------------------------------------------------------------------
+   Design tokens
+   ------------------------------------------------------------------ */
+
+:root {
+  --sm-primary: #2563eb;
+  --sm-primary-dark: #1d4ed8;
+  --sm-primary-light: #eff4ff;
+  --sm-primary-glow: rgba(37, 99, 235, 0.35);
+
+  --sm-bg: #ffffff;
+  --sm-surface: #ffffff;
+  --sm-surface-muted: #f8fafc;
+
+  --sm-text-primary: #0f172a;
+  --sm-text-secondary: #475569;
+  --sm-text-muted: #94a3b8;
+
+  --sm-border: #e2e8f0;
+  --sm-border-strong: #cbd5e1;
+
+  --sm-success: #16a34a;
+  --sm-danger: #dc2626;
+  --sm-danger-bg: #fef2f2;
+
+  --sm-radius-sm: 10px;
+  --sm-radius-md: 14px;
+  --sm-radius-lg: 18px;
+  --sm-radius-xl: 20px;
+
+  --sm-shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --sm-shadow-md: 0 8px 24px rgba(15, 23, 42, 0.06);
+  --sm-shadow-lg: 0 24px 48px rgba(15, 23, 42, 0.12);
+  --sm-shadow-primary: 0 12px 28px rgba(37, 99, 235, 0.22);
+
+  --sm-font-display: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  --sm-font-body: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+
+  --sm-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --sm-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Dark mode structure — variables only, not implemented.
+   Toggle by adding data-theme="dark" to a parent element. */
+[data-theme="dark"] {
+  --sm-bg: #0b1120;
+  --sm-surface: #111827;
+  --sm-surface-muted: #1a2337;
+  --sm-text-primary: #f8fafc;
+  --sm-text-secondary: #cbd5e1;
+  --sm-text-muted: #64748b;
+  --sm-border: #1f2a44;
+  --sm-border-strong: #2a3a5c;
+}
+
+/* ------------------------------------------------------------------
+   Base layout
+   ------------------------------------------------------------------ */
+
+.wizard-page {
+  min-height: 100vh;
+  width: 100%;
+  background:
+    radial-gradient(circle at 15% -10%, rgba(37, 99, 235, 0.07), transparent 45%),
+    radial-gradient(circle at 100% 0%, rgba(37, 99, 235, 0.05), transparent 40%),
+    var(--sm-bg);
+  display: flex;
+  justify-content: center;
+  padding: 40px 24px 56px;
+  font-family: var(--sm-font-body);
+  color: var(--sm-text-primary);
+  box-sizing: border-box;
+}
+
+.wizard-page *,
+.wizard-page *::before,
+.wizard-page *::after {
+  box-sizing: border-box;
+}
+
+.wizard-shell {
+  width: 100%;
+  max-width: 980px;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+/* ------------------------------------------------------------------
+   Header + progress indicator
+   ------------------------------------------------------------------ */
+
+.wizard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.wizard-progress-indicator {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+
+.wizard-progress-step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  opacity: 0.45;
+  transition: opacity 0.35s var(--sm-ease);
+}
+
+.wizard-progress-step-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--sm-text-muted);
+  transition: all 0.35s var(--sm-ease);
+}
+
+.wizard-progress-step-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--sm-text-secondary);
+  white-space: nowrap;
+}
+
+.wizard-progress-step-active {
+  opacity: 1;
+}
+
+.wizard-progress-step-active .wizard-progress-step-dot {
+  background: var(--sm-primary);
+  width: 9px;
+  height: 9px;
+  box-shadow: 0 0 0 4px var(--sm-primary-light);
+}
+
+.wizard-progress-step-active .wizard-progress-step-label {
+  color: var(--sm-primary);
+}
+
+.wizard-progress-step-done {
+  opacity: 0.85;
+}
+
+.wizard-progress-step-done .wizard-progress-step-dot {
+  background: var(--sm-success);
+}
+
+/* ------------------------------------------------------------------
+   Body / step shared styles
+   ------------------------------------------------------------------ */
+
+.wizard-body {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.wizard-error-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  background: var(--sm-danger-bg);
+  border: 1px solid rgba(220, 38, 38, 0.2);
+  color: var(--sm-danger);
+  border-radius: var(--sm-radius-md);
+  font-size: 14px;
+  font-weight: 500;
+  animation: wizardSlideDown 0.3s var(--sm-ease);
+}
+
+.wizard-step {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  animation: wizardFadeIn 0.5s var(--sm-ease);
+}
+
+.wizard-step-header {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-align: left;
+}
+
+.wizard-title {
+  font-family: var(--sm-font-display);
+  font-size: clamp(28px, 4vw, 38px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  margin: 0;
+  color: var(--sm-text-primary);
+}
+
+.wizard-subtitle {
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--sm-text-secondary);
+  margin: 0;
+  max-width: 560px;
+}
+
+/* ------------------------------------------------------------------
+   Step 1 — Role cards
+   ------------------------------------------------------------------ */
+
+.wizard-role-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.wizard-role-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  text-align: left;
+  padding: 22px 20px;
+  background: var(--sm-surface);
+  border: 1.5px solid var(--sm-border);
+  border-radius: var(--sm-radius-xl);
+  cursor: pointer;
+  font-family: inherit;
+  transition: transform 0.25s var(--sm-ease), border-color 0.25s var(--sm-ease),
+    box-shadow 0.25s var(--sm-ease), background 0.25s var(--sm-ease);
+}
+
+.wizard-role-card:hover {
+  transform: translateY(-3px) scale(1.01);
+  border-color: var(--sm-border-strong);
+  box-shadow: var(--sm-shadow-md);
+}
+
+.wizard-role-card-selected {
+  border-color: var(--sm-primary);
+  background: var(--sm-primary-light);
+  box-shadow: var(--sm-shadow-primary);
+  animation: wizardGlowPulse 2.4s ease-in-out infinite;
+}
+
+.wizard-role-card-selected:hover {
+  transform: translateY(-3px) scale(1.02);
+}
+
+.wizard-role-icon {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--sm-radius-md);
+  background: var(--sm-primary-light);
+  color: var(--sm-primary);
+  font-size: 18px;
+  transition: transform 0.25s var(--sm-ease-spring);
+}
+
+.wizard-role-card:hover .wizard-role-icon {
+  transform: scale(1.08) rotate(-4deg);
+}
+
+.wizard-role-title {
+  font-size: 15.5px;
+  font-weight: 700;
+  color: var(--sm-text-primary);
+}
+
+.wizard-role-description {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--sm-text-secondary);
+}
+
+.wizard-role-check {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  color: var(--sm-primary);
+  font-size: 18px;
+  animation: wizardPopIn 0.3s var(--sm-ease-spring);
+}
+
+/* ------------------------------------------------------------------
+   Step 2 — Skill search + chips
+   ------------------------------------------------------------------ */
+
+.wizard-search-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  background: var(--sm-surface-muted);
+  border: 1.5px solid var(--sm-border);
+  border-radius: var(--sm-radius-lg);
+  transition: border-color 0.25s var(--sm-ease), box-shadow 0.25s var(--sm-ease);
+}
+
+.wizard-search-bar:focus-within {
+  border-color: var(--sm-primary);
+  box-shadow: 0 0 0 4px var(--sm-primary-light);
+  background: var(--sm-surface);
+}
+
+.wizard-search-icon {
+  color: var(--sm-text-muted);
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+.wizard-search-input {
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 15px;
+  font-family: inherit;
+  color: var(--sm-text-primary);
+  width: 100%;
+}
+
+.wizard-search-input::placeholder {
+  color: var(--sm-text-muted);
+}
+
+.wizard-chip-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.wizard-chip {
+  padding: 9px 18px;
+  border-radius: 999px;
+  border: 1.5px solid var(--sm-border);
+  background: var(--sm-surface);
+  color: var(--sm-text-secondary);
+  font-size: 13.5px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s var(--sm-ease);
+}
+
+.wizard-chip:hover {
+  border-color: var(--sm-border-strong);
+  background: var(--sm-surface-muted);
+  transform: translateY(-1px);
+}
+
+.wizard-chip-active {
+  background: var(--sm-primary);
+  border-color: var(--sm-primary);
+  color: #ffffff;
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.28);
+}
+
+.wizard-chip-active:hover {
+  background: var(--sm-primary-dark);
+  border-color: var(--sm-primary-dark);
+}
+
+.wizard-chip-empty {
+  font-size: 14px;
+  color: var(--sm-text-muted);
+  padding: 12px 0;
+}
+
+.wizard-selected-panel {
+  padding: 22px;
+  background: var(--sm-surface-muted);
+  border: 1px solid var(--sm-border);
+  border-radius: var(--sm-radius-lg);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.wizard-selected-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--sm-text-primary);
+  margin: 0;
+}
+
+.wizard-selected-count {
+  background: var(--sm-primary);
+  color: #ffffff;
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.wizard-selected-empty {
+  font-size: 13.5px;
+  color: var(--sm-text-muted);
+  margin: 0;
+}
+
+.wizard-selected-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.wizard-selected-tag {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px 6px 14px;
+  background: var(--sm-surface);
+  border: 1px solid var(--sm-border);
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--sm-text-primary);
+  animation: wizardPopIn 0.25s var(--sm-ease-spring);
+}
+
+.wizard-selected-tag-remove {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: var(--sm-surface-muted);
+  color: var(--sm-text-secondary);
+  cursor: pointer;
+  font-size: 10px;
+  transition: all 0.2s var(--sm-ease);
+}
+
+.wizard-selected-tag-remove:hover {
+  background: var(--sm-danger-bg);
+  color: var(--sm-danger);
+}
+
+/* ------------------------------------------------------------------
+   Step 3 — Review
+   ------------------------------------------------------------------ */
+
+.wizard-review-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.wizard-glass-card {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  border-radius: var(--sm-radius-xl);
+  box-shadow: var(--sm-shadow-md);
+}
+
+.wizard-review-card {
+  padding: 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.wizard-review-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.wizard-review-card-header h3 {
+  margin: 0;
+  font-size: 13.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--sm-text-secondary);
+}
+
+.wizard-review-icon {
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--sm-radius-md);
+  background: var(--sm-primary-light);
+  color: var(--sm-primary);
+  font-size: 16px;
+}
+
+.wizard-review-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--sm-text-primary);
+  margin: 0;
+}
+
+.wizard-review-caption {
+  font-size: 13.5px;
+  color: var(--sm-text-secondary);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.wizard-review-skill-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.wizard-review-skill-pill {
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: var(--sm-primary-light);
+  color: var(--sm-primary-dark);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.wizard-cta-button {
+  align-self: flex-start;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 32px;
+  background: var(--sm-primary);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--sm-radius-lg);
+  font-size: 15.5px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  box-shadow: var(--sm-shadow-primary);
+  transition: transform 0.2s var(--sm-ease), box-shadow 0.2s var(--sm-ease),
+    background 0.2s var(--sm-ease);
+}
+
+.wizard-cta-button:hover {
+  transform: translateY(-2px);
+  background: var(--sm-primary-dark);
+  box-shadow: 0 16px 32px rgba(37, 99, 235, 0.3);
+}
+
+.wizard-cta-icon {
+  font-size: 17px;
+}
+
+/* ------------------------------------------------------------------
+   Step 4 — AI generation screen
+   ------------------------------------------------------------------ */
+
+.wizard-step-generation {
+  align-items: center;
+  text-align: center;
+  gap: 20px;
+  padding: 24px 0 12px;
+}
+
+.wizard-generation-mascot-wrap {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+
+.wizard-generation-glow {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--sm-primary-glow), transparent 70%);
+  filter: blur(6px);
+  animation: wizardBreathe 2.6s ease-in-out infinite;
+}
+
+.wizard-generation-mascot {
+  position: relative;
+  width: 108px;
+  height: 108px;
+  object-fit: contain;
+  animation: wizardFloat 3.2s ease-in-out infinite;
+  filter: drop-shadow(0 12px 20px rgba(37, 99, 235, 0.25));
+}
+
+.wizard-generation-title {
+  max-width: 480px;
+}
+
+.wizard-generation-subtitle {
+  max-width: 420px;
+}
+
+.wizard-timeline {
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 8px;
+  text-align: left;
+}
+
+.wizard-timeline-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px;
+  border-radius: var(--sm-radius-md);
+  transition: all 0.35s var(--sm-ease);
+  opacity: 0.4;
+}
+
+.wizard-timeline-item-active {
+  opacity: 1;
+  background: var(--sm-primary-light);
+}
+
+.wizard-timeline-item-completed {
+  opacity: 0.85;
+}
+
+.wizard-timeline-marker {
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--sm-primary);
+  font-size: 16px;
+}
+
+.wizard-timeline-item-completed .wizard-timeline-marker {
+  color: var(--sm-success);
+}
+
+.wizard-timeline-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--sm-text-muted);
+}
+
+.wizard-timeline-text {
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--sm-text-primary);
+  flex: 1;
+}
+
+.wizard-timeline-loading {
+  display: flex;
+  gap: 4px;
+}
+
+.wizard-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--sm-primary);
+  animation: wizardDotBounce 1.2s ease-in-out infinite;
+}
+
+.wizard-dot:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.wizard-dot:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.wizard-spin {
+  animation: wizardSpin 0.9s linear infinite;
+}
+
+.wizard-progress-track {
+  width: 100%;
+  max-width: 480px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--sm-surface-muted);
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+.wizard-progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--sm-primary), #60a5fa);
+  transition: width 0.6s var(--sm-ease);
+}
+
+/* ------------------------------------------------------------------
+   Footer
+   ------------------------------------------------------------------ */
+
+.wizard-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-top: 8px;
+  border-top: 1px solid var(--sm-border);
+}
+
+.wizard-footer-back,
+.wizard-footer-next,
+.wizard-footer-skip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 22px;
+  border-radius: var(--sm-radius-md);
+  font-size: 14.5px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s var(--sm-ease);
+}
+
+.wizard-footer-back {
+  background: transparent;
+  border: 1.5px solid var(--sm-border);
+  color: var(--sm-text-secondary);
+}
+
+.wizard-footer-back:hover:not(:disabled) {
+  border-color: var(--sm-border-strong);
+  background: var(--sm-surface-muted);
+  color: var(--sm-text-primary);
+}
+
+.wizard-footer-back:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.wizard-footer-skip {
+  background: transparent;
+  border: none;
+  color: var(--sm-text-muted);
+  margin-right: auto;
+  margin-left: 12px;
+}
+
+.wizard-footer-skip:hover {
+  color: var(--sm-text-secondary);
+}
+
+.wizard-footer-next {
+  background: var(--sm-primary);
+  border: 1.5px solid var(--sm-primary);
+  color: #ffffff;
+  box-shadow: var(--sm-shadow-primary);
+}
+
+.wizard-footer-next:hover {
+  background: var(--sm-primary-dark);
+  border-color: var(--sm-primary-dark);
+  transform: translateY(-1px);
+}
+
+/* ------------------------------------------------------------------
+   Keyframes
+   ------------------------------------------------------------------ */
+
+@keyframes wizardFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes wizardSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes wizardPopIn {
+  from {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes wizardGlowPulse {
+  0%,
+  100% {
+    box-shadow: 0 12px 28px rgba(37, 99, 235, 0.22);
+  }
+  50% {
+    box-shadow: 0 12px 34px rgba(37, 99, 235, 0.34);
+  }
+}
+
+@keyframes wizardBreathe {
+  0%,
+  100% {
+    transform: scale(0.9);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+}
+
+@keyframes wizardFloat {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes wizardDotBounce {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+  30% {
+    transform: translateY(-4px);
+    opacity: 1;
+  }
+}
+
+@keyframes wizardSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ------------------------------------------------------------------
+   Responsive
+   ------------------------------------------------------------------ */
+
+@media (max-width: 900px) {
+  .wizard-role-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .wizard-review-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .wizard-page {
+    padding: 24px 16px 40px;
+  }
+
+  .wizard-shell {
+    gap: 28px;
+  }
+
+  .wizard-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .wizard-progress-indicator {
+    gap: 16px;
+    overflow-x: auto;
+    width: 100%;
+    padding-bottom: 2px;
+  }
+
+  .wizard-progress-step-label {
+    font-size: 12px;
+  }
+
+  .wizard-role-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .wizard-title {
+    font-size: 26px;
+  }
+
+  .wizard-cta-button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .wizard-footer {
+    flex-wrap: wrap;
+  }
+
+  .wizard-footer-skip {
+    margin-left: 0;
+    order: 3;
+    width: 100%;
+    justify-content: center;
+    padding-top: 4px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wizard-page *,
+  .wizard-page *::before,
+  .wizard-page *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

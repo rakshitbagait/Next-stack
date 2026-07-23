@@ -2,8 +2,13 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 
 import Logo from "../../components/common/Logo";
-
+import {googleLogin} from "../../services/googleAuth"
 import "../../styles/auth.css";
+import { GoogleOAuthProvider } from "@react-oauth/google";
+import { GoogleLogin } from "@react-oauth/google";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+
 
 import {
     FaUser,
@@ -22,8 +27,9 @@ import { FaRocket } from "react-icons/fa";
 
 function Register() {
 
+    const [error, setErrors] = useState({});
+    const navigate = useNavigate();
     const [showPassword, setShowPassword] = useState(false);
-
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     const [formData, setFormData] = useState({
@@ -45,12 +51,28 @@ function Register() {
 
     };
 
-    const handleSubmit = (e) => {
-
+    const handleSubmit = async (e) => {
         e.preventDefault();
+        try {
 
-        console.log(formData);
+            const response = await axios.post(
+                "http://127.0.0.1:8000/accounts/register-user/",
+                formData
+            );
 
+            console.log(response.data);
+
+            if (response.data.status) {
+                navigate("/verify?email=" + encodeURIComponent(formData.email));
+            }
+
+        } catch (error) {
+            console.log(error);
+            console.log(error.response.data);
+                if (error.response) {
+        setErrors(error.response.data.error);
+    }
+        }
     };
 
     return (
@@ -188,6 +210,7 @@ function Register() {
                                     value={formData.fullName}
                                     onChange={handleChange}
                                 />
+                                {error?.name && (<span className="error">{error.name}</span>)}
 
                             </div>
 
@@ -210,7 +233,7 @@ function Register() {
                                     value={formData.email}
                                     onChange={handleChange}
                                 />
-
+                                {error?.email && (<span className="error">{error.email}</span>)}
                             </div>
 
                         </div>
@@ -232,6 +255,8 @@ function Register() {
                                     value={formData.password}
                                     onChange={handleChange}
                                 />
+                                {error?.password && (<span className="error">{error.password}</span>)}
+
 
                                 <button
                                     type="button"
@@ -270,6 +295,8 @@ function Register() {
                                     value={formData.confirmPassword}
                                     onChange={handleChange}
                                 />
+                                {error?.confirm_password && (<span className="error">{error.confirm_password}</span>)}
+
 
                                 <button
                                     type="button"
@@ -313,6 +340,7 @@ function Register() {
                         <button
                             className="login-btn"
                             type="submit"
+                            
                         >
                             Create Account
                         </button>
@@ -323,13 +351,14 @@ function Register() {
                         <span>OR</span>
                     </div>
 
-                    <button className="google-btn">
-
-                        <FcGoogle />
-
-                        Continue with Google
-
-                    </button>
+        <GoogleLogin
+    onSuccess={(credentialResponse) => {
+        console.log(credentialResponse);
+    }}
+    onError={() => {
+        console.log("Google Login Failed");
+    }}
+        />
 
                     <p className="register-text">
 

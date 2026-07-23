@@ -4,6 +4,12 @@ import Logo from "../../components/common/Logo";
 import mascot from "../../assets/mascot-robo.png";
 import "../../styles/auth.css";
 import "../../styles/global.css";
+import {googleLogin} from "../../services/googleAuth"
+
+import { GoogleLogin } from "@react-oauth/google";
+import { GoogleOAuthProvider } from "@react-oauth/google";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 
 
@@ -23,6 +29,9 @@ import {
 import { FcGoogle } from "react-icons/fc";
 
 function Login() {
+const navigate = useNavigate();
+
+
     const [showPassword, setShowPassword] = useState(false);
 
     const [formData, setFormData] = useState({
@@ -260,14 +269,32 @@ function Login() {
 
                     {/* GOOGLE */}
 
-                    <button className="google-btn">
 
-                        <FcGoogle />
 
-                        Continue with Google
+                <GoogleLogin
+                    onSuccess={async (credentialResponse) => {
+                        try {
+                            const response = await axios.post(
+                                "http://127.0.0.1:8000/accounts/google-login/",
+                                {
+                                    credential: credentialResponse.credential,
+                                }
+                            );
 
-                    </button>
+                            console.log(response.data);
 
+                            if (response.data.status) {
+                                navigate("/dashboard");
+                            }
+
+                        } catch (error) {
+                            console.log(error);
+                        }
+                    }}
+                    onError={() => {
+                        console.log("Google Login Failed");
+                    }}
+                />
                     {/* REGISTER */}
 
                     <p className="register-text">
