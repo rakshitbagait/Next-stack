@@ -3,9 +3,15 @@
   import heroImg from './assets/hero.png'
   import Landing from "./pages/landing/landing"
 import AppRoutes from "./routes/AppRoutes";
+import AppBootstrap from './AppBootstrap';
 
 function App() {
-    return <AppRoutes />;
+    return(
+      <>
+      <AppRoutes />;
+      <AppBootstrap />;
+</>
+    );
 }
 
 export default App;

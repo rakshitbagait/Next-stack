@@ -154,17 +154,22 @@ REST_FRAMEWORK = {
     ),
 }
 
-# -----------------------------------------------------------------------------
-# JWT
-# -----------------------------------------------------------------------------
 
-SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
-    "ROTATE_REFRESH_TOKENS": False,
-    "BLACKLIST_AFTER_ROTATION": False,
-}
+# Session expires after 10 days
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 10
 
+# Keep the session even after the browser is closed
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+
+# Save the session whenever it is modified
+SESSION_SAVE_EVERY_REQUEST = True
+
+# Security (good defaults)
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = "Lax"
+
+# Use True in production with HTTPS
+SESSION_COOKIE_SECURE = False
 # -----------------------------------------------------------------------------
 # CORS
 # -----------------------------------------------------------------------------
@@ -173,6 +178,12 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
 ]
 
+
+CORS_ALLOW_CREDENTIALS = True
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:5173",
+]
 # -----------------------------------------------------------------------------
 # Internationalization
 # -----------------------------------------------------------------------------

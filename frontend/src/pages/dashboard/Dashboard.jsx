@@ -1,7 +1,8 @@
 import React from "react";
+import AppLayout from "../../components/common/AppLayout"
 function Dashboard() {
     return (
-        <h1>Dashboard</h1>
+        <AppLayout />
     );
 }
 

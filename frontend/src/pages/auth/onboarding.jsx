@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
-
-import Logo from "../../components/common/Logo";
+import api from "../../api/axios";
+import TopNavbar from "../../components/common/TopNavbar";
+// import Logo from "../../components/common/Logo";
 
 import mascot from "../../assets/mascot-robo.png";
 
@@ -159,6 +159,7 @@ const SKILLS = [
   "GraphQL",
   "REST APIs",
   "Figma",
+  "C#",
 ];
 
 const STEP_LABELS = [
@@ -185,6 +186,9 @@ const buildInitialStages = () => [
 const Wizard = () => {
   const navigate = useNavigate();
 
+  const [progress, setProgress] = useState(0);
+  const progressRef = useRef(null);
+
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -192,9 +196,8 @@ const Wizard = () => {
     known_topics: [],
   });
   const [searchTerm, setSearchTerm] = useState("");
-  const [generationStages, setGenerationStages] = useState(
-    buildInitialStages()
-  );
+  const [generationStages, setGenerationStages] =
+    useState(buildInitialStages());
   const [error, setError] = useState("");
 
   const stageTimeouts = useRef([]);
@@ -209,7 +212,7 @@ const Wizard = () => {
 
   const selectedRole = useMemo(
     () => ROLES.find((role) => role.id === formData.goal),
-    [formData.goal]
+    [formData.goal],
   );
 
   const filteredSkills = useMemo(() => {
@@ -248,7 +251,7 @@ const Wizard = () => {
       setError("Choose a destination to continue.");
       return false;
     }
-    if (step === 2 && formData.known_topics.length === 0) {
+   if (step === 2 && !formData.is_beginner && formData.known_topics.length === 0) {
       setError("Select at least one skill you already know.");
       return false;
     }
@@ -278,55 +281,45 @@ const Wizard = () => {
 
   const updateStage = (index, status) => {
     setGenerationStages((prev) =>
-      prev.map((stage, i) => (i === index ? { ...stage, status } : stage))
+      prev.map((stage, i) => (i === index ? { ...stage, status } : stage)),
     );
   };
 
-  const startGeneration = () => {
-    setCurrentStep(4);
-    setLoading(true);
-    setGenerationStages(buildInitialStages());
+  const startGeneration = async () => {
+  setCurrentStep(4);
+  setError("");
 
-    /*
-      Simulated staged progress.
-      Replace this block with real backend events from the Ollama model,
-      e.g. by opening a stream/socket and calling updateStage(index, status)
-      as each event arrives, then calling submitRoadmap() on completion.
-    */
-    const stageDurations = [900, 1100, 1300, 1200, 1600, 1400, 900];
-    let elapsed = 0;
+  try {
+    const payload = {
+      goal: formData.goal,
+      known_topics: formData.known_topics,
+      is_beginner: formData.is_beginner,
+    };
 
-    stageDurations.forEach((duration, index) => {
-      const startTimeout = setTimeout(() => {
-        updateStage(index, "active");
-      }, elapsed);
+    await api.post(
+      "/learning/generate-roadmap/",
+      payload,
+      {
+        withCredentials: true,
+      }
+    );
 
-      const endTimeout = setTimeout(() => {
-        updateStage(index, "completed");
-        if (index === stageDurations.length - 1) {
-          submitRoadmap();
-        }
-      }, elapsed + duration);
+    navigate("/dashboard");
 
-      stageTimeouts.current.push(startTimeout, endTimeout);
-      elapsed += duration;
-    });
-  };
+  } catch (err) {
+    setError(
+      err.response?.data?.message ||
+      "Failed to generate roadmap."
+    );
+      console.log(err);
+    console.log(err.response);
+    console.log(err.request);
+    console.log(err.message);
 
-  const submitRoadmap = async () => {
-    try {
-      const payload = {
-        goal: formData.goal,
-        known_topics: formData.known_topics,
-      };
-      await axios.post("/api/roadmap/generate", payload);
-      navigate("/dashboard");
-    } catch (err) {
-      setError("Something went wrong while generating your roadmap.");
-    } finally {
-      setLoading(false);
-    }
-  };
+    setCurrentStep(3);
+  }
+};
+
 
   /* ------------------------------------------------------------ */
   /* Render helpers                                                 */
@@ -337,8 +330,8 @@ const Wizard = () => {
       <div className="wizard-step-header">
         <h1 className="wizard-title">What do you want to become?</h1>
         <p className="wizard-subtitle">
-          Choose your learning destination. StackMaps AI will build the
-          shortest learning path.
+          Choose your learning destination. StackMaps AI will build the shortest
+          learning path.
         </p>
       </div>
 
@@ -394,6 +387,22 @@ const Wizard = () => {
           onChange={(event) => setSearchTerm(event.target.value)}
         />
       </div>
+      <div className="wizard-beginner-checkbox">
+        <label>
+          <input
+            type="checkbox"
+            checked={formData.is_beginner}
+            onChange={(e) =>
+              setFormData((prev) => ({
+                ...prev,
+                is_beginner: e.target.checked,
+                known_topics: e.target.checked ? [] : prev.known_topics,
+              }))
+            }
+          />
+          I am a complete beginner
+        </label>
+      </div>
 
       <div className="wizard-chip-grid">
         {filteredSkills.map((skill) => {
@@ -402,7 +411,10 @@ const Wizard = () => {
             <button
               type="button"
               key={skill}
-              className={`wizard-chip${isActive ? " wizard-chip-active" : ""}`}
+              disabled={formData.is_beginner}
+              className={`wizard-chip ${
+                isActive ? "wizard-chip-active" : ""
+              } ${formData.is_beginner ? "wizard-chip-disabled" : ""}`}
               onClick={() => toggleSkill(skill)}
             >
               {skill}
@@ -468,9 +480,7 @@ const Wizard = () => {
               <h3>Destination</h3>
             </div>
             <p className="wizard-review-value">{selectedRole?.title}</p>
-            <p className="wizard-review-caption">
-              {selectedRole?.description}
-            </p>
+            <p className="wizard-review-caption">{selectedRole?.description}</p>
           </div>
 
           <div className="wizard-glass-card wizard-review-card">
@@ -490,11 +500,7 @@ const Wizard = () => {
           </div>
         </div>
 
-        <button
-          type="button"
-          className="wizard-cta-button"
-          onClick={goNext}
-        >
+        <button type="button" className="wizard-cta-button" onClick={goNext}>
           <FaRobot className="wizard-cta-icon" />
           Generate AI Roadmap
         </button>
@@ -503,65 +509,61 @@ const Wizard = () => {
   };
 
   const renderStepFour = () => (
-    <div className="wizard-step wizard-step-generation">
-      <div className="wizard-generation-mascot-wrap">
-        <div className="wizard-generation-glow" />
-        <img
-          src={mascot}
-          alt="StackMaps AI"
-          className="wizard-generation-mascot"
-        />
-      </div>
+  <div className="wizard-loading">
 
-      <h1 className="wizard-title wizard-generation-title">
-        StackMaps AI is creating your roadmap
-      </h1>
-      <p className="wizard-subtitle wizard-generation-subtitle">
-        Sit tight, this usually takes a few seconds.
-      </p>
+    <img
+      src={mascot}
+      alt="AI"
+      className="wizard-loading-image"
+    />
 
-      <div className="wizard-timeline">
-        {generationStages.map((stage, index) => (
-          <div
-            className={`wizard-timeline-item wizard-timeline-item-${stage.status}`}
-            key={stage.title}
-          >
-            <span className="wizard-timeline-marker">
-              {stage.status === "completed" && <FaCircleCheck />}
-              {stage.status === "active" && (
-                <FaSpinner className="wizard-spin" />
-              )}
-              {stage.status === "pending" && (
-                <span className="wizard-timeline-dot" />
-              )}
-            </span>
-            <span className="wizard-timeline-text">{stage.title}</span>
-            {stage.status === "active" && (
-              <span className="wizard-timeline-loading">
-                <span className="wizard-dot" />
-                <span className="wizard-dot" />
-                <span className="wizard-dot" />
-              </span>
-            )}
-          </div>
-        ))}
-      </div>
+    <h1>Generating Your Learning Path</h1>
 
-      <div className="wizard-progress-track">
-        <div
-          className="wizard-progress-fill"
-          style={{
-            width: `${
-              (generationStages.filter((s) => s.status === "completed")
-                .length /
-                generationStages.length) *
-              100
-            }%`,
-          }}
-        />
-      </div>
+    <p>
+      StackMaps AI is understanding your goal and creating
+      a personalized roadmap.
+    </p>
+
+    <div className="wizard-loader">
+
+      <div
+        className="wizard-loader-fill"
+        style={{ width: `${progress}%` }}
+      />
+
     </div>
-  );
+
+    <div className="wizard-loader-percent">
+      {Math.floor(progress)}%
+    </div>
+
+    <div className="wizard-loader-text">
+
+      {progress < 20 && "🧠 Thinking..."}
+
+      {progress >= 20 &&
+        progress < 45 &&
+        "🔍 Searching Knowledge Graph..."}
+
+      {progress >= 45 &&
+        progress < 70 &&
+        "📚 Finding Missing Prerequisites..."}
+
+      {progress >= 70 &&
+        progress < 90 &&
+        "🤖 Generating Personalized Roadmap..."}
+
+      {progress >= 90 &&
+        progress < 100 &&
+        "💾 Finalizing Roadmap..."}
+
+      {progress === 100 &&
+        "✅ Roadmap Ready"}
+
+    </div>
+
+  </div>
+);
 
   const renderCurrentStep = () => {
     switch (currentStep) {
@@ -585,7 +587,7 @@ const Wizard = () => {
     <div className="wizard-page">
       <div className="wizard-shell">
         <header className="wizard-header">
-          <Logo className ="logo"/>
+          <TopNavbar />
           <div className="wizard-progress-indicator">
             {STEP_LABELS.map((label, index) => {
               const stepNumber = index + 1;

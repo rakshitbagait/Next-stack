@@ -56,7 +56,7 @@ function Register() {
         try {
 
             const response = await axios.post(
-                "http://127.0.0.1:8000/accounts/register-user/",
+                "http://localhost:8000/accounts/register-user/",
                 formData
             );
 

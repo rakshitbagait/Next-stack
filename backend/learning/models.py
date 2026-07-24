@@ -159,11 +159,14 @@ class LearningPath(models.Model):
     status = models.CharField(max_length=50,choices=Status.choices,default=Status.ACTIVE)
     created_at = models.DateTimeField( auto_now_add = True)
     updated_at = models.DateTimeField(auto_now=True)
+    is_beginner  = models.BooleanField(default=False)
+
     def __str__(self):
         return f"{self.user.username} - {self.goal}"
 class LearningPathNode(models.Model):
     id = models.UUIDField(primary_key=True,default=uuid.uuid4,editable=False)
     learning_path= models.ForeignKey(LearningPath,on_delete=models.CASCADE)
+    goal = models.CharField(max_length=250,default="Frontend-Developer")
     knowledge_node = models.ForeignKey(KnowledgeNode,on_delete=models.CASCADE)
     order_no = models.IntegerField()
     recommendation_reason = models.TextField(max_length=300,blank =True)
@@ -172,3 +175,10 @@ class LearningPathNode(models.Model):
         ordering = ["order_no"]
     def __str__(self):
         return f"{self.learning_path.goal} - {self.knowledge_node.title}"
+
+class UserSkill(models.Model):
+    user  = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE)
+    knowledge_node = models.ForeignKey(
+        KnowledgeNode,
+        on_delete=models.CASCADE
+    )

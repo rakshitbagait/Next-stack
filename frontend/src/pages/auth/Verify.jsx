@@ -20,7 +20,7 @@ const Verify = () => {
     const handleResendOtp = async () => {
     try {
         const response = await axios.post(
-            "http://127.0.0.1:8000/accounts/resend-otp/",
+            "http://localhost:8000/accounts/resend-otp/",
             {
                 email,
             }
@@ -45,7 +45,7 @@ const Verify = () => {
 
         try {
             const response = await axios.post(
-                "http://127.0.0.1:8000/accounts/verify-register/",
+                "http://localhost:8000/accounts/verify-register/",
                 {
                     email,
                     otp,

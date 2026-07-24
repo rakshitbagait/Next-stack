@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
-from keycloak import KeycloakOpenID
+
 from django.http import JsonResponse
 from django.conf import settings
 import requests
@@ -21,6 +21,59 @@ from .models import *
 from .utility import *
 
 import traceback
+
+from django.contrib.auth import authenticate, login
+from django.http import JsonResponse
+
+from django.contrib.auth import logout
+
+
+
+@require_http_methods(["GET"])
+def app_bootstrap(request):
+
+    if not request.user.is_authenticated:
+        return JsonResponse(
+            {
+                "status": True,
+                "authenticated": False,
+                "redirect": "/"
+            }
+        )
+
+    if not request.user.is_verified:
+        return JsonResponse(
+            {
+                "status": True,
+                "authenticated": True,
+                "redirect": "/verify"
+            }
+        )
+
+    if not request.user.onboarding_completed:
+        return JsonResponse(
+            {
+                "status": True,
+                "authenticated": True,
+                "redirect": "/wizard",
+                "user": {
+                    "full_name": request.user.full_name,
+                    "email": request.user.email,
+                }
+            }
+        )
+
+    return JsonResponse(
+        {
+            "status": True,
+            "authenticated": True,
+            "redirect": "/dashboard",
+            "user": {
+                "full_name": request.user.full_name,
+                "email": request.user.email,
+            }
+        }
+    )
 class GoogleLoginAPIView(APIView):
 
     def post(self, request):
@@ -175,7 +228,7 @@ def verify_register(request):
                 status=400
             )
 
-        user = User.objects.create(
+        user = User.objects.create_user(
 
             username=pending_user.username,
 
@@ -185,7 +238,10 @@ def verify_register(request):
 
             password=pending_user.password_hash,
 
+            is_verified  = True,
+
         )
+        user.save()
 
         pending_user.delete()
 
@@ -214,12 +270,12 @@ def resend_otp(request):
         body = json.loads(request.body)
         email = body.get("email")
         otp, otp_expiry = generate_otp()
+        send_otp_email(email=email,otp=otp)
         PendingRegistration.objects.update(
             email=email,
             otp = otp,
             otp_expiry= otp_expiry,
         )
-        send_otp_email(email=email,otp=otp)
         return JsonResponse(
             {
                 "status": True,
@@ -230,3 +286,143 @@ def resend_otp(request):
         traceback.print_exc()
         return JsonResponse(
             {"status": False,"error" : "Something went wrong"},status = 500)
+
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def login_view(request):
+    try:
+
+        body = json.loads(request.body)
+
+        email = body.get("email")
+        password = body.get("password")
+
+        request_error = {}
+
+        request_error.update(field_validator(email, "email"))
+        request_error.update(field_validator(password, "password"))
+
+        if request_error:
+            return JsonResponse(
+                {
+                    "status": False,
+                    "error": request_error
+                },
+                status=400
+            )
+
+        email = email.strip().lower()
+
+        user = User.objects.filter(email=email).first()
+
+
+
+        if not user:
+            return JsonResponse(
+                {
+                    "status": False,
+                    "message": "Account not found.",
+                    # "redirect": "/register"
+                },
+                status=404
+            )
+
+        if not user.is_verified:
+            return JsonResponse(
+                {
+                    "status": False,
+                    "message": "Please verify your email first.",
+                    "redirect" : "/verify"
+                },
+                status=403
+            )
+
+        authenticated_user = authenticate(
+            request,
+            username=user.username,
+            password=password
+        )
+
+        if not authenticated_user:
+            return JsonResponse(
+                {
+                    "status": False,
+                    "message": "Invalid email or password."
+                },
+                status=401
+            )
+
+        login(request, authenticated_user)
+        print(request.user.is_authenticated)
+        print(request.session.session_key)
+
+        if not authenticated_user.onboarding_completed:
+            return JsonResponse(
+                {
+                    "status": True,
+                    "redirect": "/wizard",
+                    "message": "Login successful."
+                }
+            )
+
+        return JsonResponse(
+            {
+                "status": True,
+                "redirect": "/dashboard",
+                "message": "Login successful."
+            }
+        )
+        
+    except Exception:
+        traceback.print_exc()
+
+        return JsonResponse(
+            {
+                "status": False,
+                "message": "Something went wrong."
+            },
+            status=500
+        )
+
+@require_http_methods(["GET"])
+def session_view(request):
+
+    if not request.user.is_authenticated:
+
+        return JsonResponse(
+            {
+                "status": False,
+                "authenticated": False
+            },
+            status=401
+        )
+
+
+    return JsonResponse(
+        {
+            "status": True,
+            "authenticated": True,
+            "user": {
+                "full_name": request.user.full_name,
+                "email": request.user.email,
+                "is_verified": request.user.is_verified,
+                "onboarding_completed": request.user.onboarding_completed,
+            }
+        }
+    )
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def logout_view(request):
+
+    logout(request)
+
+    return JsonResponse(
+        {
+            "status": True,
+            "message": "Logout successful."
+        }
+    )

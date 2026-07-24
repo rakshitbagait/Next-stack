@@ -1,0 +1,74 @@
+/* ======================================================
+   Top Navbar
+====================================================== */
+
+.top-navbar{
+    position: fixed;
+    top: 0;
+    left: 0;
+
+    width: 100vw;
+    height: 80px;
+
+    background: #ffffff;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 0 48px;
+
+    border-bottom: 1px solid #E5E7EB;
+    box-shadow: 0 2px 12px rgba(15,23,42,.06);
+
+    z-index: 1000;
+
+    box-sizing: border-box;
+}
+
+.top-navbar-left{
+    display: flex;
+    align-items: center;
+}
+
+.top-navbar-right{
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+.top-navbar-center
+{
+    width: 800px;
+    margin-left: 50px;
+}
+
+/* Optional if your ThemeButton needs spacing */
+
+    /* .top-navbar-right button{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    } */
+
+/* ============================
+   Tablet
+============================ */
+
+@media (max-width: 1024px){
+
+    .top-navbar{
+        height: 72px;
+        padding: 0 24px;
+    }
+}
+
+/* ============================
+   Mobile
+============================ */
+
+@media (max-width: 768px){
+
+    .top-navbar{
+        padding: 0 18px;
+    }
+}

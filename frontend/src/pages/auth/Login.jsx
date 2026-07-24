@@ -39,6 +39,7 @@ const navigate = useNavigate();
         password: "",
         remember: false,
     });
+    const [error, setError] = useState("");
 
     const handleChange = (e) => {
         const { name, value, checked, type } = e.target;
@@ -49,14 +50,48 @@ const navigate = useNavigate();
         });
     };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
+const handleSubmit = async (e) => {
+    e.preventDefault();
 
-        console.log(formData);
+    setError("");
 
-        // API call later
-        // navigate("/dashboard");
-    };
+    try {
+
+        const response = await axios.post(
+            "http://localhost:8000/accounts/login-view/",
+            formData,
+            {
+                withCredentials: true,
+            }
+        );
+
+        if (response.data.status) {
+
+            navigate(response.data.redirect);
+
+        } else {
+
+            setError(response.data.message);
+
+        }
+
+    } catch (error) {
+
+        if (error.response) {
+
+            setError(error.response.data.message);
+
+            if (error.response.data.redirect) {
+                navigate(error.response.data.redirect);
+            }
+
+        } else {
+
+            setError("Something went wrong.");
+
+        }
+    }
+};
 
     return (
         <div className="login-page">
@@ -249,7 +284,11 @@ const navigate = useNavigate();
                             </Link>
 
                         </div>
-
+                        {error && (
+                            <p className="error">
+                                {error}
+                            </p>
+                        )}
                         {/* LOGIN BUTTON */}
 
                         <button
@@ -275,7 +314,7 @@ const navigate = useNavigate();
                     onSuccess={async (credentialResponse) => {
                         try {
                             const response = await axios.post(
-                                "http://127.0.0.1:8000/accounts/google-login/",
+                                "http://localhost:8000/accounts/google-login/",
                                 {
                                     credential: credentialResponse.credential,
                                 }
